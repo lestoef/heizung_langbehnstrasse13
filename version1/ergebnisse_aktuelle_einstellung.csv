@@ -1,0 +1,19 @@
+Parameter: Volumenstrom-Simulation
+Pumpenfoerderhoehe (mWS): 4.0
+
+Strang ID;Strang Name;Q Nominal (l/h);SRV kV max (m3/h);SRV Einstellung (kV);Volumenstrom (l/h) ERREICHT
+Strang 1;Strang 1;0.00;0.00;6.5000;700.64
+Strang 2;Strang 2;0.00;0.00;3.2000;660.11
+Strang 3;Strang 3;92.00;100.00;100.0000;89.65
+Strang 4;Strang 4;325.00;0.72;1.9000;440.62
+Strang 5;Strang 5;359.00;0.84;1.9000;454.54
+Strang 6;Strang 6;359.00;0.97;1.9000;411.33
+Strang 7;Strang 7;92.00;100.00;100.0000;88.36
+Strang 8;Strang 8;390.00;1.10;1.9000;430.49
+Strang 9;Strang 9;392.00;1.10;2.0000;437.04
+Strang 10;Strang 11;336.00;1.10;2.0000;355.74
+Strang 11;Strang 10;363.00;0.97;5.9000;457.78
+Strang 12;Strang 11;336.00;1.10;3.9000;371.40
+
+GESAMTVOLUMENSTROM NOMINAL:;;3044.00;;;
+GESAMTVOLUMENSTROM ERREICHT:;;;;;4897.70

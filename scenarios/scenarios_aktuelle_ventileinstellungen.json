@@ -1,0 +1,30 @@
+{
+  "scenario_name": "Serieller Umbau: HK2 vor HK1 geschaltet",
+  "settings_override": {
+    "pipe_surcharge_factor": 0.4
+  },
+  "modifications": [
+    {
+      "type": "merge_circuits",
+      "mode": "serial_prepend",
+      "source_circuit": "Heizkreis 2",
+      "target_circuit": "Heizkreis 1",
+      "source_head_m": 4.0,
+      "rename_to": "Gesamtanlage (Serie)"
+    },
+    {
+      "type": "set_valve_kv",
+      "changes": {
+        "HK1-Strang 1": 1.9,
+        "HK1-Strang 2": 1.9,
+        "HK1-Strang 3": 1.9,
+        "HK1-Strang 4": 1.9,
+        "HK1-Strang 5": 2.0,
+        "HK1-Strang 6": 2.0,
+        "HK1-Strang 7": 5.9,
+        "HK1-Strang 8 (Ende)": 3.9,
+        "HK2-Strang 2": 3.2
+      }
+    }
+  ]
+}

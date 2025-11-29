@@ -1,0 +1,158 @@
+{
+  "global_settings": {
+    "fluid_density": 983.2,
+    "fluid_viscosity": 0.00047,
+    "default_return_temp_diff": 15,
+    "pipe_surcharge_factor": 0.4
+  },
+  "circuits": [
+    {
+      "name": "Heizkreis 2",
+      "pump_head_m": 2.0,
+      "topology": [
+        {
+          "type": "segment",
+          "pipe": {"length": 2, "dim": "CU42x1.5"},
+          "consumer": {
+            "name": "HK2-Strang 1",
+            "design_power_w": 9610,
+            "design_flow_lh": 763,
+            "valve_kv": 6.50,
+            "dn": 25,
+            "connection_pipe": "CU28x1.5"
+          }
+        },
+        {
+          "type": "segment",
+          "pipe": {"length": 4, "dim": "CU42x1.5"},
+          "consumer": {
+            "name": "HK2-Strang 2",
+            "design_power_w": 7048,
+            "design_flow_lh": 560,
+            "valve_kv": 3.76,
+            "dn": 25,
+            "connection_pipe": "CU28x1.5"
+          }
+        },
+        {
+          "type": "segment",
+          "pipe": {"length": 0.5, "dim": "CU42x1.5"},
+          "consumer": {
+            "name": "HK2-Heizkörper Ohne Ventil",
+            "design_power_w": 1166,
+            "design_flow_lh": 92,
+            "valve_kv": null,
+            "connection_pipe": "CU15x1.5",
+            "is_direct": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "Heizkreis 1",
+      "pump_head_m": 6.5,
+      "topology": [
+        {
+          "type": "segment",
+          "pipe": {"length": 20, "dim": "CU42x1.5"},
+          "consumer": {
+            "name": "HK1-Strang 1",
+            "design_power_w": 4096,
+            "design_flow_lh": 325,
+            "valve_kv": 0.72,
+            "connection_pipe": "CU22x1.5"
+          }
+        },
+        {
+          "type": "segment",
+          "pipe": {"length": 8, "dim": "CU42x1.5"},
+          "consumer": {
+            "name": "HK1-Strang 2",
+            "design_power_w": 4519,
+            "design_flow_lh": 359,
+            "valve_kv": 0.84,
+            "connection_pipe": "CU22x1.5"
+          }
+        },
+        {
+          "type": "segment",
+          "pipe": {"length": 5, "dim": "CU42x1.5"},
+          "consumer": {
+            "name": "HK1-Strang 3",
+            "design_power_w": 4519,
+            "design_flow_lh": 359,
+            "valve_kv": 0.97,
+            "connection_pipe": "CU22x1.5"
+          }
+        },
+        {
+          "type": "segment",
+          "pipe": {"length": 15, "dim": "CU42x1.5"},
+          "consumer": {
+            "name": "HK1-Heizkörper Ohne Ventil",
+            "design_power_w": 1166,
+            "design_flow_lh": 92,
+            "valve_kv": null,
+            "connection_pipe": "CU15x1.5",
+            "is_direct": true
+          }
+        },
+        {
+          "type": "segment",
+          "pipe": {"length": 2, "dim": "CU42x1.5"},
+          "consumer": {
+            "name": "HK1-Strang 4",
+            "design_power_w": 4914,
+            "design_flow_lh": 390,
+            "valve_kv": 1.1,
+            "connection_pipe": "CU22x1.5"
+          }
+        },
+        {
+          "type": "segment",
+          "pipe": {"length": 15, "dim": "CU35x1.5"},
+          "consumer": {
+            "name": "HK1-Strang 5",
+            "design_power_w": 4939,
+            "design_flow_lh": 392,
+            "valve_kv": 1.1,
+            "connection_pipe": "CU22x1.5"
+          }
+        },
+        {
+          "type": "segment",
+          "pipe": {"length": 5, "dim": "CU35x1.5"},
+          "consumer": {
+            "name": "HK1-Strang 6",
+            "design_power_w": 4567,
+            "design_flow_lh": 363,
+            "valve_kv": 1.1,
+            "connection_pipe": "CU22x1.5"
+          }
+        },
+        {
+          "type": "segment",
+          "pipe": {"length": 5, "dim": "CU28x1.5"},
+          "consumer": {
+            "name": "HK1-Strang 7",
+            "design_power_w": 4234,
+            "design_flow_lh": 336,
+            "valve_kv": 0.97,
+            "connection_pipe": "CU22x1.5"
+          }
+        },
+        {
+          "type": "segment",
+          "pipe": {"length": 2, "dim": "CU22x1.5"},
+          "consumer": {
+            "name": "HK1-Strang 8 (Ende)",
+            "design_power_w": 4178,
+            "design_flow_lh": 332,
+            "valve_kv": 1.1,
+            "connection_pipe": "CU22x1.5"
+          }
+        }
+      ]
+    }
+  ]
+}

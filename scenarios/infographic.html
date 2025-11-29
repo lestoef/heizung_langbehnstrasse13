@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Heizung — Interaktive Infografik: kV ↔ Massenstrom</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+      body{font-family:system-ui, -apple-system, Roboto, 'Segoe UI', Arial; margin:20px}
+      h1,h2{margin:0 0 10px 0}
+      .grid{display:grid; grid-template-columns: 1fr 420px; gap:18px; align-items:start}
+      table{width:100%; border-collapse:collapse; margin-top:6px}
+      th,td{padding:6px 8px; border-bottom:1px solid #eee; text-align:left}
+      .slider{width:100%}
+      .controls{display:flex; gap:10px; margin:10px 0}
+      .small{font-size:0.9rem;color:#666}
+      .badge{display:inline-block;padding:3px 8px;background:#f0f4f8;border-radius:6px;margin-left:6px}
+    </style>
+  </head>
+  <body>
+    <h1>Interaktive Infografik — kV-Werte vs. Massenstrom</h1>
+    <p class="small">Startet mit den <strong>aktuellen Ventileinstellungen</strong>. Ziehe Schieberegler um kV pro Strang zu ändern — die Tabelle & das Diagramm zeigen live die neu berechneten Massenströme (vereinfachtes Modell).</p>
+
+    <div class="controls">
+      <button id="btn-current">Load: aktuelle Einstellungen</button>
+      <button id="btn-optimized">Load: optimiert</button>
+      <button id="btn-planned">Load: wie geplant</button>
+      <button id="btn-reset">Reset sliders</button>
+      <div style="margin-left:auto"><span class="small">Modell:</span> <span class="badge">q = kV · sqrt(p) · 1000</span></div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <div id="chart" style="width:100%;height:480px"></div>
+
+        <h2 style="margin-top:18px">Strang-Details</h2>
+        <div class="small">Blau = Ziel (Urspr. Q), Grau = aktuell simuliert, Rot = Live (mit aktuellem Slider).</div>
+        <table id="table">
+          <thead><tr><th>Strang</th><th>Ziel Q<br>[l/h]</th><th>Aktuell Q<br>[l/h]</th><th>kV</th><th>Adjust</th><th>Neu Q</th><th>∆ zu Ziel</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <aside>
+        <h2>Quick facts</h2>
+        <ul>
+          <li>Dieses Demo nutzt die Dateien aus <code>scenarios/</code>.</li>
+          <li>Vereinfacht angenommen: jeder Strang hat ein lokales Referenzdruck p (aus Simulationswerten geschätzt).</li>
+          <li>Slider zeigen, wie sich die Ventilöffnung (kV) lokal auf den volumetrischen Massenstrom auswirkt.</li>
+        </ul>
+
+        <h3 style="margin-top:8px">Tip</h3>
+        <p class="small">Verwende <strong>Load: optimiert</strong> um die vom Python-Skript vorgeschlagenen kV-Werte zu laden und per Slider weiter zu feintunen.</p>
+
+        <h3 style="margin-top:8px">Datenquellen</h3>
+        <p class="small">Eingebettete Tabellen basieren auf:</p>
+        <ul class="small">
+          <li>`heizung_vergleich_aktuelle_ventileinstellungen.csv` (Start)</li>
+          <li>`heizung_vergleich_optimiert.csv` (Automatisch optimiert)</li>
+          <li>`heizung_vergleich_ventile_wie_geplant.csv` (Ventile unverändert)</li>
+        </ul>
+      </aside>
+    </div>
+
+    <script>
+      // --- embedded scenario data (parsed from CSVs) ---
+      const dataset_current = [
+        {name: 'HK2-Strang 1', targetQ:2824.1, simQ:3875.6, urspr_kv:6.5, sim_kv:6.5},
+        {name: 'HK2-Strang 2', targetQ:1622.0, simQ:1813.4, urspr_kv:3.76, sim_kv:3.2},
+        {name: 'HK2-Heizkörper Ohne Ventil', targetQ:125.5, simQ:164.2, urspr_kv:null, sim_kv:null},
+        {name: 'HK1-Strang 1', targetQ:528.4, simQ:882.7, urspr_kv:0.72, sim_kv:1.9},
+        {name: 'HK1-Strang 2', targetQ:597.3, simQ:810.7, urspr_kv:0.84, sim_kv:1.9},
+        {name: 'HK1-Strang 3', targetQ:678.6, simQ:771.6, urspr_kv:0.97, sim_kv:1.9},
+        {name: 'HK1-Heizkörper Ohne Ventil', targetQ:196.0, simQ:97.9, urspr_kv:null, sim_kv:null},
+        {name: 'HK1-Strang 4', targetQ:737.5, simQ:595.2, urspr_kv:1.1, sim_kv:1.9},
+        {name: 'HK1-Strang 5', targetQ:692.3, simQ:582.5, urspr_kv:1.1, sim_kv:2.0},
+        {name: 'HK1-Strang 6', targetQ:683.2, simQ:571.0, urspr_kv:1.1, sim_kv:2.0},
+        {name: 'HK1-Strang 7', targetQ:590.3, simQ:1603.9, urspr_kv:0.97, sim_kv:5.9},
+        {name: 'HK1-Strang 8 (Ende)', targetQ:662.6, simQ:1044.4, urspr_kv:1.1, sim_kv:3.9}
+      ];
+
+      const dataset_optimized = [
+        {name:'HK2-Strang 1', targetQ:2824.1, simQ:2829.7, urspr_kv:6.5, sim_kv:4.7},
+        {name:'HK2-Strang 2', targetQ:1622.0, simQ:1608.6, urspr_kv:3.76, sim_kv:2.8},
+        {name:'HK2-Heizkörper Ohne Ventil', targetQ:125.5, simQ:166.5, urspr_kv:null, sim_kv:null},
+        {name:'HK1-Strang 1', targetQ:528.4, simQ:481.1, urspr_kv:0.72, sim_kv:1.0},
+        {name:'HK1-Strang 2', targetQ:597.3, simQ:580.1, urspr_kv:0.84, sim_kv:1.3},
+        {name:'HK1-Strang 3', targetQ:678.6, simQ:684.6, urspr_kv:0.97, sim_kv:1.6},
+        {name:'HK1-Heizkörper Ohne Ventil', targetQ:196.0, simQ:112.0, urspr_kv:null, sim_kv:null},
+        {name:'HK1-Strang 4', targetQ:737.5, simQ:720.5, urspr_kv:1.1, sim_kv:1.9},
+        {name:'HK1-Strang 5', targetQ:692.3, simQ:683.5, urspr_kv:1.1, sim_kv:2.3},
+        {name:'HK1-Strang 6', targetQ:683.2, simQ:667.9, urspr_kv:1.1, sim_kv:2.4},
+        {name:'HK1-Strang 7', targetQ:590.3, simQ:664.9, urspr_kv:0.97, sim_kv:2.7},
+        {name:'HK1-Strang 8 (Ende)', targetQ:662.6, simQ:603.6, urspr_kv:1.1, sim_kv:2.6}
+      ];
+
+      const dataset_planned = [
+        {name:'HK2-Strang 1', targetQ:2824.1, simQ:3906.9, urspr_kv:6.5, sim_kv:6.5},
+        {name:'HK2-Strang 2', targetQ:1622.0, simQ:2178.4, urspr_kv:3.76, sim_kv:3.76},
+        {name:'HK2-Heizkörper Ohne Ventil', targetQ:125.5, simQ:168.2, urspr_kv:null, sim_kv:null},
+        {name:'HK1-Strang 1', targetQ:528.4, simQ:380.9, urspr_kv:0.72, sim_kv:0.72},
+        {name:'HK1-Strang 2', targetQ:597.3, simQ:429.8, urspr_kv:0.84, sim_kv:0.84},
+        {name:'HK1-Strang 3', targetQ:678.6, simQ:487.8, urspr_kv:0.97, sim_kv:0.97},
+        {name:'HK1-Heizkörper Ohne Ventil', targetQ:196.0, simQ:140.6, urspr_kv:null, sim_kv:null},
+        {name:'HK1-Strang 4', targetQ:737.5, simQ:528.8, urspr_kv:1.1, sim_kv:1.1},
+        {name:'HK1-Strang 5', targetQ:692.3, simQ:494.2, urspr_kv:1.1, sim_kv:1.1},
+        {name:'HK1-Strang 6', targetQ:683.2, simQ:487.3, urspr_kv:1.1, sim_kv:1.1},
+        {name:'HK1-Strang 7', targetQ:590.3, simQ:420.3, urspr_kv:0.97, sim_kv:0.97},
+        {name:'HK1-Strang 8 (Ende)', targetQ:662.6, simQ:471.3, urspr_kv:1.1, sim_kv:1.1}
+      ];
+
+
+      // state
+      let data = dataset_current.map(d=>Object.assign({},d));
+
+      // estimate local p per row (from simQ and sim_kv) -> p = (q/1000 / kv)^2
+      function estimateP(row){
+        if(!row || row.sim_kv==null || row.sim_kv===0) return null;
+        const q_m3h = row.simQ/1000.0; // m^3/h
+        // q_m3h = kv * sqrt(p)  -> p = (q_m3h / kv)^2
+        const p = Math.pow(q_m3h / row.sim_kv, 2);
+        return p;
+      }
+
+      function prepareRow(row){
+        const r = Object.assign({}, row);
+        r.p = estimateP(r);
+        r.slider_kv = (r.sim_kv==null? null : r.sim_kv);
+        r.calc_new_q = function(kv){
+          if(this.p==null) return null;
+          return kv * Math.sqrt(this.p) * 1000.0; // l/h
+        }
+        r.current_new_q = r.calc_new_q(r.slider_kv || 0);
+        return r;
+      }
+
+      function renderTable(){
+        const tbody = document.querySelector('#table tbody');
+        tbody.innerHTML = '';
+        data.forEach((r, idx) => {
+          const row = prepareRow(r);
+          const tr = document.createElement('tr');
+
+          const tdName = document.createElement('td'); tdName.textContent = row.name;
+          const tdTarget = document.createElement('td'); tdTarget.textContent = row.targetQ.toFixed(1);
+          const tdSim = document.createElement('td'); tdSim.textContent = row.simQ.toFixed(1);
+          const tdKV = document.createElement('td'); tdKV.textContent = (row.sim_kv==null? 'Direkt' : row.sim_kv);
+
+          // slider column
+          const tdSlider = document.createElement('td');
+          if(row.sim_kv==null){ tdSlider.textContent = '—'; }
+          else {
+            const input = document.createElement('input');
+            input.type = 'range'; input.min = 0.01; input.max = 35; input.step = 0.01; input.value = row.slider_kv;
+            input.className = 'slider'; input.dataset.index = idx;
+            const small = document.createElement('div'); small.style.fontSize='0.9rem'; small.style.marginTop='6px';
+            const number = document.createElement('input'); number.type = 'number'; number.style.width='64px'; number.step='0.01'; number.min='0.01'; number.max='35'; number.value = row.slider_kv;
+
+            input.addEventListener('input', (e)=>{ number.value = e.target.value; onSliderChange(idx, +e.target.value); });
+            number.addEventListener('change', (e)=>{ let val = +e.target.value || 0.01; if(val<0.01) val=0.01; input.value = val; onSliderChange(idx, val); });
+            tdSlider.appendChild(input);
+            tdSlider.appendChild(document.createElement('br'));
+            tdSlider.appendChild(number);
+          }
+
+          // new Q
+          const tdNew = document.createElement('td'); tdNew.id = 'new-'+idx; tdNew.textContent = (row.current_new_q==null? 'Direkt' : row.current_new_q.toFixed(1));
+
+          // delta
+          const tdDelta = document.createElement('td');
+          if(row.current_new_q==null){ tdDelta.textContent = '—'; }
+          else {
+            const diff = (row.current_new_q - row.targetQ) / row.targetQ * 100.0;
+            tdDelta.textContent = diff>=0 ? '+'+diff.toFixed(1)+'%' : diff.toFixed(1)+'%';
+            tdDelta.style.color = Math.abs(diff)>10 ? '#b33030' : (Math.abs(diff)>3 ? '#b36b00' : '#198754');
+          }
+
+          tr.appendChild(tdName);
+          tr.appendChild(tdTarget);
+          tr.appendChild(tdSim);
+          tr.appendChild(tdKV);
+          tr.appendChild(tdSlider);
+          tr.appendChild(tdNew);
+          tr.appendChild(tdDelta);
+
+          tbody.appendChild(tr);
+        });
+        renderChart();
+      }
+
+      function onSliderChange(index, value){
+        const row = data[index];
+        row.slider_kv = value;
+        const prepared = prepareRow(row);
+        const newVal = prepared.calc_new_q(value);
+        const display = document.getElementById('new-'+index);
+        if(display) display.textContent = (newVal==null? 'Direkt' : newVal.toFixed(1));
+        renderChart();
+      }
+
+      function renderChart(){
+        const names = data.map(d=>d.name);
+        const target = data.map(d=>d.targetQ);
+        const current = data.map(d=>d.simQ);
+        const live = data.map(d=>{ return (d.sim_kv==null ? null : (d.p? (d.slider_kv||d.sim_kv)*Math.sqrt(d.p)*1000.0 : null)); });
+
+        const traces = [
+          {x:names, y:target, name:'Ziel (Urspr. Q)', type:'bar', marker:{color:'#66a3ff'}},
+          {x:names, y:current, name:'Aktuell (Sim.)', type:'bar', marker:{color:'#9aa0a6'}},
+          {x:names, y:live, name:'Live (Slider)', type:'bar', marker:{color:'#ff6b6b'}}
+        ];
+
+        const layout = {barmode:'group', margin:{t:30,b:160}, yaxis:{title:'Massenstrom [l/h]'}, legend:{orientation:'h'}, xaxis:{tickangle:45, automargin:true}};
+        Plotly.react('chart', traces, layout);
+      }
+
+      // set data helper
+      function setDataset(dset){
+        data = dset.map(x=>Object.assign({},x));
+        // compute p for each row
+        data.forEach(r=>{ r.p = estimateP(r); if(r.sim_kv!=null) r.slider_kv = r.sim_kv; });
+        renderTable();
+      }
+
+      document.getElementById('btn-current').addEventListener('click', ()=> setDataset(dataset_current));
+      document.getElementById('btn-optimized').addEventListener('click', ()=> setDataset(dataset_optimized));
+      document.getElementById('btn-planned').addEventListener('click', ()=> setDataset(dataset_planned));
+      document.getElementById('btn-reset').addEventListener('click', ()=> setDataset(data === dataset_current ? dataset_current : data.map(r=>Object.assign({},r))));
+
+      // initial render
+      setDataset(dataset_current);
+
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,17 @@
+{
+    "pump_head_mWS": 6.0,
+    "valve_settings": [
+        {"name": "Strang 1 (V: 6.50, kVs: 6.8)", "kv_setting": 6.50},
+        {"name": "Strang 2 (V: 3.76, kVs: 6.8)", "kv_setting": 3.20},
+        {"name": "Strang 3 (Ohne SRV)", "kv_setting": 100.00},
+        {"name": "Strang 4 (V: 0.72, kVs: 6.4)", "kv_setting": 1.90},
+        {"name": "Strang 5 (V: 0.84, kVs: 6.4)", "kv_setting": 1.90},
+        {"name": "Strang 6 (V: 0.97, kVs: 6.4)", "kv_setting": 1.90},
+        {"name": "Strang 7 (Ohne SRV)", "kv_setting": 100.00},
+        {"name": "Strang 8 (V: 1.10, kVs: 6.4)", "kv_setting": 1.90},
+        {"name": "Strang 9 (V: 1.10, kVs: 6.4)", "kv_setting": 2.00},
+        {"name": "Strang 10 (V: 1.10, kVs: 6.4)", "kv_setting": 2.00},
+        {"name": "Strang 11 (V: 0.97, kVs: 6.4)", "kv_setting": 5.90},
+        {"name": "Strang 12 (V: 1.10, kVs: 6.4)", "kv_setting": 3.90}
+    ]
+}
