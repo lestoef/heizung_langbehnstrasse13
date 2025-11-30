@@ -63,12 +63,6 @@ Die CSVs wurden vom Python-Skript `heizung_simulation_auto_optimierer.py` erzeug
 
 Zur erneuten Berechnung mit anderen Konfigurationen: Skript anpassen bzw. `scenarios.json` (obere Ebene) ändern, dann lokal `python3 heizung_simulation_auto_optimierer.py` ausführen.
 
----
-
-Wenn Du möchtest, schreibe ich noch eine kurze Anleitung für das Erzeugen neuer Szenarien / Vergleichsläufe oder erweitere die Infografik um detailliertere hydraulische Kopplung. ✅
-
----
-
 ## Quick Start — Ergebnis neu erzeugen & Infografik öffnen
 
 Kurzanleitung um die CSVs / Grafiken neu zu erzeugen und die Infografik zu öffnen:
@@ -90,5 +84,3 @@ xdg-open scenarios/infographic.html  # Linux
 open scenarios/infographic.html      # macOS
 # oder einfach im Dateiexplorer den File öffnen
 ```
-
-Wenn Du möchtest, erweitere ich die Infografik so, dass sie CSV/JSON dynamisch lädt (z. B. über einen kleinen lokalen HTTP-Server) oder ich baue eine statische PNG-Exportfunktion für Reports.
