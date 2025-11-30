@@ -125,22 +125,3 @@ Da Δp ∝ v^2 und v ∝ q/A, ist Δp quadratisch in q. Änderungen bei Ventilst
 2) Szenario: setze `scenarios.json` mit `merge_circuits` oder `set_valve_kv` 
 3) Führe Auto‑Optimierer → `heizung_simulation_auto_optimierer.py`
 4) Kontrolliere `scenarios/heizung_vergleich_optimiert.csv` und `scenarios/infographic.html`.
-
----
-
-Wenn Du möchtest, ergänze ich:
-
-- eine kleine Test‑/Validierungssuite (Unit‑Tests + analytische Fälle)
-- Beispiel‑Konfigurationen für "2 Pumpen geplant / 1 gebaut"
-- eine erweiterte Infografik, die CSV/JSON direkt vom lokalen Server lädt (dynamisch)
-
-— Ende —
-
-2. Basissimulation ausführenStartet einen einzelnen Berechnungslauf basierend auf der aktuellen heizung_config.json. Prüft, ob die Pumpenleistung für die gewünschten Durchflüsse ausreicht.python3 heizung_simulation.py
-3. Automatischen Abgleich startenStartet den Optimierer, der versucht, die Ventileinstellungen ($k_v$) so anzupassen, dass alle Räume optimal versorgt werden.python3 heizung_simulation_auto_optimierer.py
-4. Ergebnisse visualisierenÖffnen Sie die generierte Infografik im Browser, um die Auswirkungen interaktiv zu sehen:# Linux
-xdg-open scenarios/infographic.html
-
-# macOS
-open scenarios/infographic.html
-⚙️ Physikalische Grundlagen & ModellDas Tool nutzt iterative numerische Verfahren zur Lösung des hydraulischen Netzwerks.1. Druckverlust in RohrenBerechnet nach der Darcy-Weisbach-Gleichung.Rohrinnendurchmesser: Wird automatisch aus Bezeichnungen wie CU15x1.0 berechnet ($d_{innen} = d_{außen} - 2 \cdot s$).Reibungsbeiwert ($\lambda$):Laminar ($Re < 2300$): $\lambda = 64 / Re$Turbulent: Näherungsformel (ähnlich Colebrook) für raue Rohre.Formstücke: Ein pipe_surcharge_factor (z.B. 0.2-0.5) kann in der Config gesetzt werden, um Druckverluste durch Bögen und Fittings pauschal zu simulieren.2. Ventil- und VerbrauchermodellMit Ventil: Das Modell nutzt die klassische $k_v$-Wert Formel:$$ \dot{V} [l/h] = k_v \cdot \sqrt{\Delta p [bar]} \cdot 1000 $$Ohne Ventil (Direktanschluss): Wird als fester hydraulischer Widerstand modelliert, der rein durch die Rohrgeometrie und den Heizkörper bestimmt wird.3. Iterativer LöserDa Druckverluste quadratisch vom Durchfluss abhängen ($\Delta p \propto \dot{V}^2$) und Netze rückgekoppelt sind, wird ein Relaxationsverfahren verwendet. Das System iteriert (Vorwärts-/Rückwärtsrechnung), bis sich Druck und Massenstrom im gesamten Netz stabilisiert haben.🛠 Workflow zur RohrnetzprüfungWie helfen diese Skripte bei der Fehleranalyse in realen Anlagen?SchrittSkript / AktionZiel1. Basis-Checkheizung_simulation.pyVergleich Simulierter Fluss vs. Soll-Fluss. Wenn Sim << Soll, ist die Pumpe zu schwach oder das Rohrnetz zu restriktiv.2. SzenarienJSON bearbeitenWas passiert, wenn ich Heizkreise zusammenlege oder die Pumpe höher stelle?3. Optimierung..._auto_optimierer.pyKann ich das Problem überhaupt durch Ventileinstellung lösen? Wenn der Optimierer Ventile voll öffnet und trotzdem Unterversorgung herrscht, liegt ein Hardware-Problem vor.4. AnalyseCSV AuswertungPrüfen der heizung_vergleich_*.csv. Relative Abweichungen berechnen.✅ Praktische Prüfliste (Verifikation)Nutzen Sie diese Schritte, um die Plausibilität der Simulation zu testen:[ ] Einzelstrang-Test: Reduzieren Sie die JSON auf einen Strang und vergleichen Sie das Ergebnis mit einer manuellen Rechnung.[ ] Pumpen-Test: Ändern Sie pump_head_m. Die Durchflüsse müssen physikalisch korrekt steigen/fallen.[ ] Zuschlagsfaktoren: Setzen Sie pipe_surcharge_factor auf realistische Werte (0.3 für viele Bögen), um reale Verluste besser abzubilden.[ ] Druckverlauf: Prüfen Sie die Spalte Pressure_Bar in der CSV, um Engstellen (hoher Druckabfall auf kurzem Stück) zu finden.🔮 Ausblick & Roadmap[ ] Unit-Tests für kritische Hydraulik-Funktionen.[ ] Import von CSV-Daten direkt in die infographic.html.[ ] GUI für interaktives Tuning der $k_v$-Werte.[ ] Support für hydraulische Weichen im Modell.Erstellt für die Analyse und Optimierung privater und gewerblicher Heizungsanlagen.
