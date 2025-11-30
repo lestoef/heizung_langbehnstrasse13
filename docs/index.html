@@ -133,6 +133,23 @@
         r.current_new_q = r.calc_new_q(r.slider_kv || 0);
         return r;
       }
+      
+      // Neue Hilfsfunktion zur Aktualisierung des Delta-Displays
+      function updateDeltaDisplay(index, newQ, targetQ){
+          const tdDelta = document.getElementById('delta-'+index);
+          if(!tdDelta) return;
+          
+          if(newQ==null){ 
+            tdDelta.textContent = '—';
+            tdDelta.style.color = 'inherit';
+          }
+          else {
+            const diff = (newQ - targetQ) / targetQ * 100.0;
+            tdDelta.textContent = diff>=0 ? '+'+diff.toFixed(1)+'%' : diff.toFixed(1)+'%';
+            tdDelta.style.color = Math.abs(diff)>10 ? '#b33030' : (Math.abs(diff)>3 ? '#b36b00' : '#198754');
+          }
+      }
+
 
       function renderTable(){
         const tbody = document.querySelector('#table tbody');
@@ -157,7 +174,7 @@
             const input = document.createElement('input');
             input.type = 'range'; 
             input.min = 0.01; 
-            input.max = maxVal; // Hier dynamisch gesetzt
+            input.max = maxVal; 
             input.step = 0.01; 
             input.value = row.slider_kv;
             input.className = 'slider'; input.dataset.index = idx;
@@ -168,7 +185,7 @@
             number.style.width='64px'; 
             number.step='0.01'; 
             number.min='0.01'; 
-            number.max = maxVal; // Auch hier dynamisch gesetzt
+            number.max = maxVal; 
             number.value = row.slider_kv;
 
             input.addEventListener('input', (e)=>{ number.value = e.target.value; onSliderChange(idx, +e.target.value); });
@@ -183,12 +200,10 @@
 
           // delta
           const tdDelta = document.createElement('td');
-          if(row.current_new_q==null){ tdDelta.textContent = '—'; }
-          else {
-            const diff = (row.current_new_q - row.targetQ) / row.targetQ * 100.0;
-            tdDelta.textContent = diff>=0 ? '+'+diff.toFixed(1)+'%' : diff.toFixed(1)+'%';
-            tdDelta.style.color = Math.abs(diff)>10 ? '#b33030' : (Math.abs(diff)>3 ? '#b36b00' : '#198754');
-          }
+          tdDelta.id = 'delta-'+idx; // ID hinzufügen, um es später zu finden
+          // Initialwert setzen
+          updateDeltaDisplay(idx, row.current_new_q, row.targetQ);
+
 
           tr.appendChild(tdName);
           tr.appendChild(tdTarget);
@@ -208,16 +223,27 @@
         row.slider_kv = value;
         const prepared = prepareRow(row);
         const newVal = prepared.calc_new_q(value);
-        const display = document.getElementById('new-'+index);
-        if(display) display.textContent = (newVal==null? 'Direkt' : newVal.toFixed(1));
+        
+        // Neues Q anzeigen
+        const displayNewQ = document.getElementById('new-'+index);
+        if(displayNewQ) displayNewQ.textContent = (newVal==null? 'Direkt' : newVal.toFixed(1));
+
+        // Delta dynamisch neu berechnen und anzeigen
+        updateDeltaDisplay(index, newVal, row.targetQ);
+        
         renderChart();
       }
 
       function renderChart(){
         const names = data.map(d=>d.name);
         const target = data.map(d=>d.targetQ);
+        // Live Q muss jetzt den aktualisierten slider_kv Wert verwenden.
+        const live = data.map(d=>{ 
+            const prepared = prepareRow(d);
+            return prepared.current_new_q;
+        });
         const current = data.map(d=>d.simQ);
-        const live = data.map(d=>{ return (d.sim_kv==null ? null : (d.p? (d.slider_kv||d.sim_kv)*Math.sqrt(d.p)*1000.0 : null)); });
+
 
         const traces = [
           {x:names, y:target, name:'Ziel (Urspr. Q)', type:'bar', marker:{color:'#66a3ff'}},
