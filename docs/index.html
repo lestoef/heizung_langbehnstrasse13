@@ -150,11 +150,26 @@
           const tdSlider = document.createElement('td');
           if(row.sim_kv==null){ tdSlider.textContent = '—'; }
           else {
+            // Ermittlung des Max-Wertes basierend auf dem Strang-Namen
+            const isHK2 = (row.name === 'HK2-Strang 1' || row.name === 'HK2-Strang 2');
+            const maxVal = isHK2 ? 6.8 : 6.4;
+
             const input = document.createElement('input');
-            input.type = 'range'; input.min = 0.01; input.max = 35; input.step = 0.01; input.value = row.slider_kv;
+            input.type = 'range'; 
+            input.min = 0.01; 
+            input.max = maxVal; // Hier dynamisch gesetzt
+            input.step = 0.01; 
+            input.value = row.slider_kv;
             input.className = 'slider'; input.dataset.index = idx;
+            
             const small = document.createElement('div'); small.style.fontSize='0.9rem'; small.style.marginTop='6px';
-            const number = document.createElement('input'); number.type = 'number'; number.style.width='64px'; number.step='0.01'; number.min='0.01'; number.max='35'; number.value = row.slider_kv;
+            const number = document.createElement('input'); 
+            number.type = 'number'; 
+            number.style.width='64px'; 
+            number.step='0.01'; 
+            number.min='0.01'; 
+            number.max = maxVal; // Auch hier dynamisch gesetzt
+            number.value = row.slider_kv;
 
             input.addEventListener('input', (e)=>{ number.value = e.target.value; onSliderChange(idx, +e.target.value); });
             number.addEventListener('change', (e)=>{ let val = +e.target.value || 0.01; if(val<0.01) val=0.01; input.value = val; onSliderChange(idx, val); });
