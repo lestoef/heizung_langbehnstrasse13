@@ -134,7 +134,7 @@
         return r;
       }
       
-      // Neue Hilfsfunktion zur Aktualisierung des Delta-Displays
+      // Hilfsfunktion zur Aktualisierung des Delta-Displays (wird für dynamische Updates verwendet)
       function updateDeltaDisplay(index, newQ, targetQ){
           const tdDelta = document.getElementById('delta-'+index);
           if(!tdDelta) return;
@@ -200,9 +200,21 @@
 
           // delta
           const tdDelta = document.createElement('td');
-          tdDelta.id = 'delta-'+idx; // ID hinzufügen, um es später zu finden
-          // Initialwert setzen
-          updateDeltaDisplay(idx, row.current_new_q, row.targetQ);
+          tdDelta.id = 'delta-'+idx; 
+          
+          // Initialwert setzen direkt auf das Element (Fix für leere Anzeige beim Laden)
+          const newQ = row.current_new_q;
+          const targetQ = row.targetQ;
+
+          if(newQ==null){ 
+            tdDelta.textContent = '—';
+            tdDelta.style.color = 'inherit';
+          }
+          else {
+            const diff = (newQ - targetQ) / targetQ * 100.0;
+            tdDelta.textContent = diff>=0 ? '+'+diff.toFixed(1)+'%' : diff.toFixed(1)+'%';
+            tdDelta.style.color = Math.abs(diff)>10 ? '#b33030' : (Math.abs(diff)>3 ? '#b36b00' : '#198754');
+          }
 
 
           tr.appendChild(tdName);
