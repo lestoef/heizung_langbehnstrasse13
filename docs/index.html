@@ -263,7 +263,14 @@
           {x:names, y:live, name:'Live (Slider)', type:'bar', marker:{color:'#ff6b6b'}}
         ];
 
-        const layout = {barmode:'group', margin:{t:30,b:160}, yaxis:{title:'Massenstrom [l/h]'}, legend:{orientation:'h'}, xaxis:{tickangle:45, automargin:true}};
+        const layout = {
+          barmode:'group',
+          margin:{t:30,b:160,r:160},
+          yaxis:{title:'Massenstrom [l/h]'},
+          /* move legend to top-right so it does not cover x-axis labels */
+          legend:{orientation:'v', x:0.98, y:0.98, xanchor:'left', yanchor:'top'},
+          xaxis:{tickangle:45, automargin:true}
+        };
         Plotly.react('chart', traces, layout);
       }
 
