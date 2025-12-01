@@ -260,7 +260,7 @@
         const traces = [
           {x:names, y:target, name:'Ziel (Urspr. Q)', type:'bar', marker:{color:'#66a3ff'}},
           {x:names, y:current, name:'Aktuell (Sim.)', type:'bar', marker:{color:'#9aa0a6'}},
-          {x:names, y:live, name:'Live (Slider)', type:'bar', marker:{color:'#ff6b6b'}}
+            {x:names, y:live, name:'Live (Slider)', type:'bar', marker:{color:'#ff6b6b'}},
         ];
 
         const layout = {
@@ -271,7 +271,16 @@
           legend:{orientation:'v', x:0.98, y:0.98, xanchor:'left', yanchor:'top'},
           xaxis:{tickangle:45, automargin:true}
         };
-        Plotly.react('chart', traces, layout);
+          // initialize new chart once, afterwards update only the 'Live' trace
+          if(!window.chartInitialized){
+            Plotly.newPlot('chart', traces, layout);
+            window.chartInitialized = true;
+          } else {
+            // update only the 'Live (Slider)' trace (trace index 2)
+            // Build the live data array (y values) and restyle that single trace.
+            const liveY = live;
+            Plotly.restyle('chart', {'y': [liveY]}, [2]);
+          }
       }
 
       // set data helper
