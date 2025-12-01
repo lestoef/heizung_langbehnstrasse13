@@ -74,7 +74,7 @@ Beurteilung:
 
 Die Grundgleichung für Rohrreibungsverluste lautet:
 
-	Δp = λ · (L/D) · (ρ/2) · v^2
+	Δp = λ · (L/D) · (ρ/2) · v²
 
 Wobei Δp der Druckverlust (Pa), λ die Reibungszahl, L die Leitungslänge, D der Innendurchmesser, ρ die Dichte und v die Strömungsgeschwindigkeit ist.
 
@@ -89,7 +89,7 @@ Hinweis: Korrekter Innendurchmesser ist wesentlich — bei Kupferrohren wird die
 
 Ventilöffnung wird durch den kV‑Wert beschrieben. Die typische Gleichung für Ventile ist:
 
-	q [m^3/h] = kV × sqrt(Δp [bar])
+	q [m³/h] = kV × sqrt(Δp [bar])
 
 In unseren Skripts wird zur Benutzer‑Wahrnehmung oft q in l/h verwendet, daher q[l/h] ≈ kV × sqrt(p[bar]) × 1000.
 
