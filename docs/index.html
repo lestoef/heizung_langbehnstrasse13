@@ -125,7 +125,10 @@
       function prepareRow(row){
         const r = Object.assign({}, row);
         r.p = estimateP(r);
-        r.slider_kv = (r.sim_kv==null? null : r.sim_kv);
+        // preserve any existing slider_kv value (user may have adjusted it)
+        if (r.slider_kv === undefined || r.slider_kv === null) {
+          r.slider_kv = (r.sim_kv==null? null : r.sim_kv);
+        }
         r.calc_new_q = function(kv){
           if(this.p==null) return null;
           return kv * Math.sqrt(this.p) * 1000.0; // l/h
@@ -242,8 +245,19 @@
 
         // Delta dynamisch neu berechnen und anzeigen
         updateDeltaDisplay(index, newVal, row.targetQ);
-        
-        renderChart();
+
+        // Recalculate live values and update only the 'Live (Slider)' trace (trace index 2)
+        // Ensure numeric array (Plotly expects numbers or nulls) and log for debugging
+        const liveYraw = data.map(d => prepareRow(d).current_new_q);
+        const liveY = liveYraw.map(v => (v == null ? null : Number(v)));
+        if (window && window.console) console.debug('liveY update', liveY);
+        try {
+          Plotly.restyle('chart', {'y': [liveY]}, [2]);
+        } catch (err) {
+          // fallback: full re-render if restyle fails
+          console.warn('Plotly.restyle failed, fallback to full render', err);
+          renderChart();
+        }
       }
 
       function renderChart(){
